@@ -33,7 +33,9 @@ $action_color = getActionColor($rule['action_recommend']);
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bs/bootstrap.min.css" rel="stylesheet">
     <title>Gold Tracker - Analysis</title>
 </head>
 <body class="bg-light p-4">
@@ -94,6 +96,39 @@ $action_color = getActionColor($rule['action_recommend']);
                 <?php endwhile; ?>
             </tbody>
         </table>
+<div class="card mt-4 p-3">
+    <canvas id="goldChart" height="100"></canvas>
+</div>
+
+<?php
+// Ambil data buat chart (10 hari terakhir)
+$res_chart = $conn->query("SELECT created_at, price_buy FROM gold_history ORDER BY id ASC LIMIT 10");
+$labels = []; $values = [];
+while($row = $res_chart->fetch_assoc()) {
+    $labels[] = $row['created_at'];
+    $values[] = $row['price_buy'];
+}
+?>
+
+<script>
+const ctx = document.getElementById('goldChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($labels) ?>,
+        datasets: [{
+            label: 'Harga Emas (IDR)',
+            data: <?= json_encode($values) ?>,
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: { responsive: true }
+});
+</script>
     </div>
+
 </body>
 </html>
