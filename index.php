@@ -37,6 +37,13 @@ $action_color = getActionColor($rule['action_recommend']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../bs/bootstrap.min.css" rel="stylesheet">
     <title>Gold Tracker - Analysis</title>
+<style>
+@media print {
+    .btn, .alert { display: none; } /* Tombol & Info tidak ikut ke print */
+    body { background: white; }
+    .container { shadow: none; border: none; }
+}
+</style>
 </head>
 <body class="bg-light p-4">
     <div class="container bg-white p-4 shadow rounded">
@@ -96,8 +103,8 @@ $action_color = getActionColor($rule['action_recommend']);
                 <?php endwhile; ?>
             </tbody>
         </table>
-<div class="card mt-4 p-3">
-    <canvas id="goldChart" height="100"></canvas>
+<div class="card mt-4 p-3" style="height: 450px;">
+    <canvas id="goldChart"></canvas>
 </div>
 
 <?php
@@ -109,7 +116,6 @@ while($row = $res_chart->fetch_assoc()) {
     $values[] = $row['price_buy'];
 }
 ?>
-
 <script>
 const ctx = document.getElementById('goldChart').getContext('2d');
 new Chart(ctx, {
@@ -122,13 +128,44 @@ new Chart(ctx, {
             borderColor: '#0d6efd',
             backgroundColor: 'rgba(13, 110, 253, 0.1)',
             fill: true,
-            tension: 0.3
+            tension: 0.3,
+            borderWidth: 3,
+            pointRadius: 5 // Biar titik harganya lebih kelihatan
         }]
     },
-    options: { responsive: true }
+    options: {
+        responsive: true,
+        maintainAspectRatio: false, // Penting: Biar tinggi canvas bisa diatur manual
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false // Biar grafiknya fokus ke area harga, gak dari 0
+            }
+        }
+    }
 });
 </script>
+<button class="btn btn-secondary mt-3" onclick="window.print()">
+    Print ke PDF / Simpan
+</button>
+<button class="btn btn-info mt-3" onclick="exportToImage()">Download sebagai PNG</button>
     </div>
 
+
+<script>
+function exportToImage() {
+    html2canvas(document.querySelector(".container")).then(canvas => {
+        let link = document.createElement('a');
+        link.download = 'gold-analysis.png';
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
