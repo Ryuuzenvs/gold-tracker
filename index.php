@@ -13,6 +13,21 @@ $rule = $res_rule->fetch_assoc();
 $is_up = ($prev) ? ($data['price_buy'] >= $prev['price_buy']) : true;
 $color_class = $is_up ? 'text-success' : 'text-danger';
 $indicator = $is_up ? '▲' : '▼';
+
+$configs = [];
+$res_config = $conn->query("SELECT * FROM gold_config");
+while($row = $res_config->fetch_assoc()) $configs[$row['config_key']] = $row['config_value'];
+
+// Fungsi untuk menentukan warna berdasarkan action
+function getActionColor($action) {
+    switch ($action) {
+        case 'ALL-IN': return 'bg-danger';      // Merah menyala
+        case 'CICIL': return 'bg-warning text-dark'; // Kuning
+        case 'SELL': return 'bg-success';      // Hijau
+        default: return 'bg-secondary';        // Abu-abu
+    }
+}
+$action_color = getActionColor($rule['action_recommend']);
 ?>
 
 <!DOCTYPE html>
@@ -23,18 +38,30 @@ $indicator = $is_up ? '▲' : '▼';
 </head>
 <body class="bg-light p-4">
     <div class="container bg-white p-4 shadow rounded">
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-secondary">
+            <strong>Info Analis:</strong> 
+            Target TP: Rp <?= number_format($configs['target_tp']) ?> | 
+            Support: Rp <?= number_format($configs['support_level']) ?> | 
+            Min RRR: <?= $configs['rrr_min'] ?>x
+        </div>
+    </div>
+</div>
         <h2 class="mb-4 text-secondary">Gold Tracker Dashboard</h2>
         
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm bg-primary text-white">
-                    <div class="card-body">
-                        <h6 class="card-title text-uppercase opacity-75">Zona Saat Ini</h6>
-                        <h3 class="fw-bold"><?= $rule['zone_name'] ?></h3>
-                        <p class="h1"><?= $rule['action_recommend'] ?></p>
-                        <small>Alokasi: <?= $rule['allocation_pct'] ?>% dari dana nganggur</small>
-                    </div>
-                </div>
+    <div class="card-body">
+        <h6 class="card-title text-uppercase opacity-75">Zona Saat Ini</h6>
+        <h3 class="fw-bold"><?= $rule['zone_name'] ?></h3>
+        
+        <span class="badge <?= $action_color ?> p-2 h2"><?= $rule['action_recommend'] ?></span>
+        
+        <p class="mt-2">Alokasi: <strong><?= $rule['allocation_pct'] ?>%</strong> dari dana</p>
+    </div>
+</div>
             </div>
 
             <div class="col-md-4">
