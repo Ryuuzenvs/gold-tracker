@@ -1,0 +1,4 @@
+bash:html/ 
+
+./run.sh 1 gold-tracker scraper.py
+

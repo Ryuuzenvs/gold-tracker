@@ -153,6 +153,7 @@ new Chart(ctx, {
     Print ke PDF / Simpan
 </button>
 <button class="btn btn-info mt-3" onclick="exportToImage()">Download sebagai PNG</button>
+<a class="btn btn-success mt-3" href="api.php">api.php</a>
     </div>
 
 
